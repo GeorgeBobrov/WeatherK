@@ -72,7 +72,10 @@ class MainActivity : AppCompatActivity() {
 
 			override fun onResponse(call: Call, response: Response) {
 				val myResponse = response.body!!.string()
-				runOnUiThread { processWeatherCity(myResponse) }
+				if (response.code == 200)
+					runOnUiThread { processWeatherCity(myResponse) }
+				else
+					runOnUiThread { textResponse.text = myResponse }
 			}
 		})
 	}
@@ -113,7 +116,10 @@ class MainActivity : AppCompatActivity() {
 			@Throws(IOException::class)
 			override fun onResponse(call: Call, response: Response) {
 				val myResponse = response.body!!.string()
-				runOnUiThread { processWeatherForecast(myResponse) }
+				if (response.code == 200)
+					runOnUiThread { processWeatherForecast(myResponse) }
+				else
+					runOnUiThread { textResponse.text = myResponse }
 			}
 		})
 	}
