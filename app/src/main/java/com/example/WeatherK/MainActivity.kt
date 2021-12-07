@@ -29,19 +29,15 @@ import java.util.*
 import kotlin.math.roundToLong
 
 import okhttp3.*
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
-
 	val baseURLRemote = "http://api.openweathermap.org/data/2.5/"
 	val APIkey = "534e27824fc3e9e6b42bd9076d595c84"
 	val inputCity = "Kiev"
 
-
-
-	override fun onCreate(savedInstanceState: Bundle?)
-	{
+	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 
@@ -55,16 +51,16 @@ class MainActivity : AppCompatActivity() {
 	private val client = OkHttpClient()
 
 	fun buttonQueryClick(sender: View?) {
-		editCity!!.clearFocus()
+		editCity.clearFocus()
 		//hide keyboard
 		val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-		imm.hideSoftInputFromWindow(linearLayoutH!!.windowToken, 0)
+		imm.hideSoftInputFromWindow(linearLayoutH.windowToken, 0)
 
-		val urlBuilder = (baseURLRemote + "weather").toHttpUrlOrNull()!!.newBuilder()
-		urlBuilder.addQueryParameter("q", editCity!!.text.toString())
+		val urlBuilder = (baseURLRemote + "weather").toHttpUrl().newBuilder()
+		urlBuilder.addQueryParameter("q", editCity.text.toString())
 		urlBuilder.addQueryParameter("appid", APIkey)
-
 		val url = urlBuilder.build().toString()
+
 		val request = Request.Builder()
 			.url(url)
 			.build()
@@ -87,9 +83,10 @@ class MainActivity : AppCompatActivity() {
 			val weatherCity = gson.fromJson(weather, ResponseWeatherCity::class.java)
 			val weatherDescription = weatherCity.weather[0].main
 			val time = Date(weatherCity.dt * 1000L)
-			val innerText = "Kotlin: Now, " + time.toLocaleString() + " in " +
-					weatherCity.name + " is " + normalizeTemp(weatherCity.main.temp) + " °C, " + weatherDescription
-			textResponse!!.text = innerText
+			val innerText = "Now, ${time.toLocaleString()} in ${weatherCity.name} " +
+				"is ${normalizeTemp(weatherCity.main.temp)} °C, $weatherDescription"
+
+			textResponse.text = innerText
 			//            textResponse.append("\n Humidity " + weatherCity.main.humidity);
 			queryWeatherForecast(weatherCity)
 		} catch (e: JsonSyntaxException) {
@@ -98,14 +95,16 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	fun queryWeatherForecast(a_weatherCity: ResponseWeatherCity) {
-		val urlBuilder = (baseURLRemote + "onecall").toHttpUrlOrNull()!!.newBuilder()
+		val urlBuilder = (baseURLRemote + "onecall").toHttpUrl().newBuilder()
 		urlBuilder.addQueryParameter("lat", a_weatherCity.coord.lat.toString())
 		urlBuilder.addQueryParameter("lon", a_weatherCity.coord.lon.toString())
 		urlBuilder.addQueryParameter("appid", APIkey)
 		val url = urlBuilder.build().toString()
+
 		val request = Request.Builder()
 			.url(url)
 			.build()
+
 		client.newCall(request).enqueue(object : Callback {
 			override fun onFailure(call: Call, e: IOException) {
 				call.cancel()
@@ -125,13 +124,12 @@ class MainActivity : AppCompatActivity() {
 			val weatherForecast = gson.fromJson(weather, ResponseWeatherForecast::class.java)
 
 //            Date time = new Date(weatherCity.dt * 1000l);
-			textResponse!!.append("\n Hourly:")
+
+			textResponse.append("\nHourly:")
+
 			for (hourForecast in weatherForecast.hourly) {
 				val innerText = addHourForecast(hourForecast)
-				textResponse!!.append("""
-
-    $innerText
-    """.trimIndent())
+				textResponse.append("\n $innerText")
 			}
 		} catch (e: JsonSyntaxException) {
 			Log.d("JsonSyntaxException", e.localizedMessage)
@@ -142,9 +140,7 @@ class MainActivity : AppCompatActivity() {
 	fun addHourForecast(hourForecast: Hourly): String {
 		val weatherDescription = hourForecast.weather[0].main
 		val time = Date(hourForecast.dt * 1000L)
-		return sdf.format(time) +
-				": Temperature " + normalizeTemp(hourForecast.temp) + " °C, " +
-				weatherDescription
+		return "${sdf.format(time)}: Temperature ${normalizeTemp(hourForecast.temp)} °C, $weatherDescription"
 	}
 
 	fun normalizeTemp(t: Float): Float {
