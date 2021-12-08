@@ -19,9 +19,11 @@ import java.io.IOException
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.client.statement.HttpResponse
+import io.ktor.utils.io.charsets.*
 
 import kotlinx.coroutines.*
 
@@ -59,12 +61,13 @@ class MainActivity : AppCompatActivity() {
 			val KtorClient = HttpClient(CIO)
 			val statement: HttpStatement = KtorClient.get(url)
 			statement.execute { response: HttpResponse ->
-				val stringBody: String = response.receive()
-
-				if (response.status.value == 200)
+				try {
+					val stringBody: String = response.receive()
 					runOnUiThread { processWeatherCity(stringBody) }
-				else
+				} catch (cre: ClientRequestException) {
+					val stringBody: String = cre.response.receive()
 					runOnUiThread { textResponse.text = stringBody }
+				}
 			}
 		}
 
