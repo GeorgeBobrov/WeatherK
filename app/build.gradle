@@ -7,8 +7,7 @@ android {
     buildToolsVersion "29.0.3"
 
     packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude("META-INF/*.kotlin_module")
+        pickFirst "META-INF/*.kotlin_module"
     }
 
     defaultConfig {
