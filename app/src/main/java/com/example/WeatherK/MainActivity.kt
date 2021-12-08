@@ -1,36 +1,29 @@
 package com.example.WeatherK
 
-import android.animation.ArgbEvaluator
-import android.animation.ObjectAnimator
-import android.animation.TimeInterpolator
-import android.animation.ValueAnimator
-import android.content.res.ColorStateList
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
-import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnTouchListener
-import android.view.ViewGroup
-import android.view.animation.LinearInterpolator
-import android.view.animation.PathInterpolator
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import kotlinx.android.synthetic.main.activity_main.*
-import com.example.WeatherK.R
-import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.roundToLong
 
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.io.IOException
+
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.client.statement.HttpResponse
+
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 	val baseURLRemote = "http://api.openweathermap.org/data/2.5/"
@@ -48,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 		textResponse.setMovementMethod(ScrollingMovementMethod())
 	}
 
-	private val client = OkHttpClient()
+	private val okHttpClient = OkHttpClient()
 
 	fun buttonQueryClick(sender: View?) {
 		editCity.clearFocus()
@@ -61,23 +54,37 @@ class MainActivity : AppCompatActivity() {
 		urlBuilder.addQueryParameter("appid", APIkey)
 		val url = urlBuilder.build().toString()
 
-		val request = Request.Builder()
-			.url(url)
-			.build()
 
-		client.newCall(request).enqueue(object : Callback {
-			override fun onFailure(call: Call, e: IOException) {
-				call.cancel()
-			}
+		GlobalScope.async() {
+			val KtorClient = HttpClient(CIO)
+			val statement: HttpStatement = KtorClient.get(url)
+			statement.execute { response: HttpResponse ->
+				val stringBody: String = response.receive()
 
-			override fun onResponse(call: Call, response: Response) {
-				val myResponse = response.body!!.string()
-				if (response.code == 200)
-					runOnUiThread { processWeatherCity(myResponse) }
+				if (response.status.value == 200)
+					runOnUiThread { processWeatherCity(stringBody) }
 				else
-					runOnUiThread { textResponse.text = myResponse }
+					runOnUiThread { textResponse.text = stringBody }
 			}
-		})
+		}
+
+//		val request = Request.Builder()
+//			.url(url)
+//			.build()
+
+//		okHttpClient.newCall(request).enqueue(object : Callback {
+//			override fun onFailure(call: Call, e: IOException) {
+//				call.cancel()
+//			}
+//
+//			override fun onResponse(call: Call, response: Response) {
+//				val stringBody = response.body!!.string()
+//				if (response.code == 200)
+//					runOnUiThread { processWeatherCity(stringBody) }
+//				else
+//					runOnUiThread { textResponse.text = stringBody }
+//			}
+//		})
 	}
 
 	fun processWeatherCity(weather: String?) {
@@ -108,18 +115,18 @@ class MainActivity : AppCompatActivity() {
 			.url(url)
 			.build()
 
-		client.newCall(request).enqueue(object : Callback {
+		okHttpClient.newCall(request).enqueue(object : Callback {
 			override fun onFailure(call: Call, e: IOException) {
 				call.cancel()
 			}
 
 			@Throws(IOException::class)
 			override fun onResponse(call: Call, response: Response) {
-				val myResponse = response.body!!.string()
+				val stringBody = response.body!!.string()
 				if (response.code == 200)
-					runOnUiThread { processWeatherForecast(myResponse) }
+					runOnUiThread { processWeatherForecast(stringBody) }
 				else
-					runOnUiThread { textResponse.text = myResponse }
+					runOnUiThread { textResponse.text = stringBody }
 			}
 		})
 	}
