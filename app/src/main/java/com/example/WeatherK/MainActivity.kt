@@ -77,7 +77,12 @@ class MainActivity : AppCompatActivity() {
 				"\n${normalizeTemp(weatherCity.main.temp)} °C, $weatherDescription"
 
 		textResponse.text = innerText
-		//            textResponse.append("\n Humidity " + weatherCity.main.humidity);
+
+		for (button in buttons) {
+			panelForecastHourly.removeView(button)
+		}
+		buttons.clear()
+
 		queryWeatherForecast(weatherCity)
 	}
 
@@ -103,6 +108,8 @@ class MainActivity : AppCompatActivity() {
 
 	}
 
+	var buttons = mutableListOf<Button>()
+
 	fun processWeatherForecast(weatherForecast: ResponseWeatherForecast) {
 //            Date time = new Date(weatherCity.dt * 1000l);
 
@@ -110,6 +117,7 @@ class MainActivity : AppCompatActivity() {
 
 		for (hourForecast in weatherForecast.hourly) {
 			val button = addHourForecast(hourForecast)
+			buttons.add(button)
 		}
 	}
 
@@ -123,9 +131,9 @@ class MainActivity : AppCompatActivity() {
 		button.text = info
 		button.isAllCaps = false
 
-		PanelForecastHourly.addView(button)
+		panelForecastHourly.addView(button)
 		val imgUrl = "http://openweathermap.org/img/w/${hourForecast.weather[0].icon}.png"
-		DownloadImageTask(button).execute(imgUrl);
+		downloadImageHashed(button, imgUrl)
 
 		return button
 	}
@@ -135,34 +143,45 @@ class MainActivity : AppCompatActivity() {
 		return (t - T0).roundToInt()
 	}
 
-
 }
 
-private class DownloadImageTask(val button: Button) :
+private var mapDrawables: HashMap<String, Drawable> = HashMap()
+
+fun downloadImageHashed(button: Button, url: String) {
+	if (mapDrawables.containsKey(url)) {
+		val drawable = mapDrawables.get(url)!!
+		addImageToButton(button, drawable)
+	} else
+		DownloadImageTask(button, url).execute()
+}
+
+fun addImageToButton(button: Button, drawable: Drawable) {
+	drawable.setBounds(0, 0, 100, 100)
+	button.setCompoundDrawables(null, null, drawable, null)
+	val px = TypedValue.applyDimension(
+		TypedValue.COMPLEX_UNIT_SP,
+		40f,
+		button.context.getResources().getDisplayMetrics());
+	button.layoutParams.height = px.toInt()
+}
+
+private class DownloadImageTask(val button: Button, val url: String) :
 	AsyncTask<String?, Void?, Drawable?>()
 {
-	override fun doInBackground(vararg urls: String?): Drawable?
-	{
-		val url = urls[0]
-		return try
-		{
+	override fun doInBackground(vararg params: String?): Drawable?	{
+		return try {
 			val strm = URL(url).getContent() as InputStream
 			Drawable.createFromStream(strm, "src name")
 		}
-		catch (e: java.lang.Exception)
-		{
+		catch (e: java.lang.Exception) {
 			Log.e("Error", e.message)
 			null
 		}
 	}
 
-	override fun onPostExecute(result: Drawable?)
-	{
-		if (result == null) return
-		result.setBounds(0, 0,  100,  100)
-		button.setCompoundDrawables(null, null, result, null)
-		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 40f, button.context.getResources().getDisplayMetrics());
-		button.layoutParams.height = px.toInt()
+	override fun onPostExecute(drawable: Drawable?)	{
+		if (drawable == null) return
+		mapDrawables.put(url, drawable);
+		addImageToButton(button, drawable)
 	}
-
 }
