@@ -45,9 +45,23 @@
         <TextView
             android:id="@+id/textResponse"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="77dp"
+            android:padding="10sp"
+            android:paddingBottom="2sp"
             android:scrollbars="vertical"
-            android:text="-" />
+            android:text="-"
+            android:textSize="16sp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/PanelForecastHourly"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+        </ScrollView>
 
     </LinearLayout>
 

@@ -1,15 +1,15 @@
 package com.example.WeatherK
 
+import android.graphics.drawable.Drawable
+import android.os.AsyncTask
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
-import java.text.SimpleDateFormat
-import java.util.*
-
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -17,9 +17,14 @@ import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.client.statement.HttpResponse
-
-import kotlinx.coroutines.*
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import java.io.InputStream
+import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 	val baseURLRemote = "http://api.openweathermap.org/data/2.5/"
@@ -68,8 +73,8 @@ class MainActivity : AppCompatActivity() {
 	fun processWeatherCity(weatherCity: ResponseWeatherCity) {
 		val weatherDescription = weatherCity.weather[0].main
 		val time = Date(weatherCity.dt * 1000L)
-		val innerText = "Now, ${time.toLocaleString()} in ${weatherCity.name} " +
-				"is ${normalizeTemp(weatherCity.main.temp)} °C, $weatherDescription"
+		val innerText = "Now, ${time.toLocaleString()}, in ${weatherCity.name} is" +
+				"\n${normalizeTemp(weatherCity.main.temp)} °C, $weatherDescription"
 
 		textResponse.text = innerText
 		//            textResponse.append("\n Humidity " + weatherCity.main.humidity);
@@ -101,25 +106,63 @@ class MainActivity : AppCompatActivity() {
 	fun processWeatherForecast(weatherForecast: ResponseWeatherForecast) {
 //            Date time = new Date(weatherCity.dt * 1000l);
 
-		textResponse.append("\nHourly:")
+		textResponse.append("\nForecast:")
 
 		for (hourForecast in weatherForecast.hourly) {
-			val innerText = addHourForecast(hourForecast)
-			textResponse.append("\n $innerText")
+			val button = addHourForecast(hourForecast)
 		}
 	}
 
 	var sdf = SimpleDateFormat("HH:mm")
-	fun addHourForecast(hourForecast: Hourly): String {
+	fun addHourForecast(hourForecast: Hourly): Button {
 		val weatherDescription = hourForecast.weather[0].main
 		val time = Date(hourForecast.dt * 1000L)
-		return "${sdf.format(time)}: Temperature ${normalizeTemp(hourForecast.temp)} °C, $weatherDescription"
+
+		val button = Button(this)
+		val info = "${sdf.format(time)}: \t ${normalizeTemp(hourForecast.temp)} °C, \t $weatherDescription"
+		button.text = info
+		button.isAllCaps = false
+
+		PanelForecastHourly.addView(button)
+		val imgUrl = "http://openweathermap.org/img/w/${hourForecast.weather[0].icon}.png"
+		DownloadImageTask(button).execute(imgUrl);
+
+		return button
 	}
 
-	fun normalizeTemp(t: Float): Float {
+	fun normalizeTemp(t: Float): Int {
 		val T0 = 273.15f
-		return Math.round(t - T0).toFloat()
+		return (t - T0).roundToInt()
 	}
 
+
+}
+
+private class DownloadImageTask(val button: Button) :
+	AsyncTask<String?, Void?, Drawable?>()
+{
+	override fun doInBackground(vararg urls: String?): Drawable?
+	{
+		val url = urls[0]
+		return try
+		{
+			val strm = URL(url).getContent() as InputStream
+			Drawable.createFromStream(strm, "src name")
+		}
+		catch (e: java.lang.Exception)
+		{
+			Log.e("Error", e.message)
+			null
+		}
+	}
+
+	override fun onPostExecute(result: Drawable?)
+	{
+		if (result == null) return
+		result.setBounds(0, 0,  100,  100)
+		button.setCompoundDrawables(null, null, result, null)
+		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 40f, button.context.getResources().getDisplayMetrics());
+		button.layoutParams.height = px.toInt()
+	}
 
 }
