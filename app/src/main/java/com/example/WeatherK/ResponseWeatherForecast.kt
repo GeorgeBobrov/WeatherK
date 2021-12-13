@@ -4,7 +4,7 @@ class ResponseWeatherForecast
 {
 	var lat: Float = 0f
 	var lon: Float = 0f
-	var timezone: String? = null
+	lateinit var timezone: String
 	var timezone_offset: Int = 0
 	lateinit var current: Current
 	lateinit var minutely: Array<Minutely>
