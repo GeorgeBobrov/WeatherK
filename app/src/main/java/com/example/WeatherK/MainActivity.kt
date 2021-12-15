@@ -1,5 +1,7 @@
 package com.example.WeatherK
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
@@ -32,12 +34,13 @@ import kotlin.math.roundToInt
 class MainActivity : AppCompatActivity() {
 	val baseURLRemote = "http://api.openweathermap.org/data/2.5/"
 	val APIkey = "534e27824fc3e9e6b42bd9076d595c84"
-	val inputCity = "Kiev"
+	private lateinit var prefs: SharedPreferences
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 
+		prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
 		editCity.clearFocus()
 		//hides keyboard on start
 //        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -223,6 +226,39 @@ class MainActivity : AppCompatActivity() {
 		dateFormatOnlyTime.timeZone = timeZone
 		dateFormatDateTime.timeZone = timeZone
 	}
+
+// Saving settings
+	override fun onPause() {
+		super.onPause()
+
+		val editor = prefs.edit()
+		editor.putString("city", editCity.text.toString())
+
+		val timeZone = if (radioTimeZoneSelectedCity.isChecked)
+			"SelectedCity"
+		else
+			"Local"
+		editor.putString("timeZone", timeZone)
+
+		editor.apply()
+	}
+
+	override fun onResume() {
+		super.onResume()
+
+		if (prefs.contains("city")) {
+			val city = prefs.getString("city", "")!!
+			editCity.setText(city)
+		}
+
+		val timeZone = prefs.getString("timeZone", "Local")!!
+
+		if (timeZone == "Local")
+			radioTimeZoneLocal.isChecked = true
+		if (timeZone == "SelectedCity")
+			radioTimeZoneSelectedCity.isChecked = true
+	}
+
 }
 
 private var mapDrawables: HashMap<String, Drawable> = HashMap()
