@@ -190,12 +190,9 @@ class MainActivity : AppCompatActivity() {
 
 		panelForecastHourly.addView(button)
 		val imgUrl = "http://openweathermap.org/img/w/${hourForecast.weather[0].icon}.png"
-		Log.d("downloadImage",
-			"Time=${sdf.format(Date(System.currentTimeMillis()))};  for $button " + dateFormatOnlyTime.format(time))
-
 		button.tag = imgUrl
 
-		downloadImageHashed(button, imgUrl)
+		downloadImageCached(button, imgUrl)
 
 		return button
 	}
@@ -269,24 +266,16 @@ class MainActivity : AppCompatActivity() {
 
 //------------------------------- Downloading images for buttons -------------------------------
 
-	val sdf = SimpleDateFormat("HH:mm:ss.SSS")
-
-	fun downloadImageHashed(button: Button, url: String) {
+	fun downloadImageCached(button: Button, url: String) {
 
 		if (mapDrawables.containsKey(url)) {
-			Log.d("downloadImage","Time=${sdf.format(Date(System.currentTimeMillis()))}; for $button mapDrawables contains " + url)
 			val drawable = mapDrawables.get(url)!!
 			addImageToButton(button, drawable)
 		} else {
 			if (listRequestedDrawables.contains(url)) return
 			listRequestedDrawables.add(url)
 
-			Log.d("downloadImage",
-				"Time=${sdf.format(Date(System.currentTimeMillis()))}; for $button mapDrawables dont contains " + url + " Start DownloadImageTask")
-
 			DownloadImageTask(url) { drawable: Drawable? ->
-				Log.d("downloadImage",
-					"Time=${sdf.format(Date(System.currentTimeMillis()))}; onPostExecute Drawable for $button")
 				listRequestedDrawables.remove(url)
 
 				if (drawable != null) {
@@ -301,8 +290,6 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	fun addImageToButton(button: Button, drawable: Drawable) {
-		Log.d("downloadImage","Time=${sdf.format(Date(System.currentTimeMillis()))}; set Drawable for $button start")
-
 		drawable.setBounds(0, 0, 100, 100)
 		button.setCompoundDrawables(null, null, drawable, null)
 		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 40f,
