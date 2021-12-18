@@ -190,6 +190,11 @@ class MainActivity : AppCompatActivity() {
 
 		panelForecastHourly.addView(button)
 		val imgUrl = "http://openweathermap.org/img/w/${hourForecast.weather[0].icon}.png"
+		Log.d("downloadImage",
+			"Time=${sdf.format(Date(System.currentTimeMillis()))};  for $button " + dateFormatOnlyTime.format(time))
+
+		button.tag = imgUrl
+
 		downloadImageHashed(button, imgUrl)
 
 		return button
@@ -206,6 +211,8 @@ class MainActivity : AppCompatActivity() {
 		val T0 = 273.15f
 		return (t - T0).roundToInt()
 	}
+
+//------------------------------------ TimeZone --------------------------------------
 
 	fun radioTimeZoneClick(sender: View?) {
 		if (g_weatherCity == null) return
@@ -227,7 +234,8 @@ class MainActivity : AppCompatActivity() {
 		dateFormatDateTime.timeZone = timeZone
 	}
 
-// Saving settings
+//------------------------------------  Saving settings --------------------------------------
+
 	override fun onPause() {
 		super.onPause()
 
@@ -259,30 +267,63 @@ class MainActivity : AppCompatActivity() {
 			radioTimeZoneSelectedCity.isChecked = true
 	}
 
+//------------------------------- Downloading images for buttons -------------------------------
+
+	val sdf = SimpleDateFormat("HH:mm:ss.SSS")
+
+	fun downloadImageHashed(button: Button, url: String) {
+
+		if (mapDrawables.containsKey(url)) {
+			Log.d("downloadImage","Time=${sdf.format(Date(System.currentTimeMillis()))}; for $button mapDrawables contains " + url)
+			val drawable = mapDrawables.get(url)!!
+			addImageToButton(button, drawable)
+		} else {
+			if (listRequestedDrawables.contains(url)) return
+			listRequestedDrawables.add(url)
+
+			Log.d("downloadImage",
+				"Time=${sdf.format(Date(System.currentTimeMillis()))}; for $button mapDrawables dont contains " + url + " Start DownloadImageTask")
+
+			DownloadImageTask(url) { drawable: Drawable? ->
+				Log.d("downloadImage",
+					"Time=${sdf.format(Date(System.currentTimeMillis()))}; onPostExecute Drawable for $button")
+				listRequestedDrawables.remove(url)
+
+				if (drawable != null) {
+					mapDrawables.put(url, drawable);
+
+					for (ibutton in buttons)
+						if (ibutton.tag == url)
+							addImageToButton(ibutton, drawable)
+				}
+			}.execute()
+		}
+	}
+
+	fun addImageToButton(button: Button, drawable: Drawable) {
+		Log.d("downloadImage","Time=${sdf.format(Date(System.currentTimeMillis()))}; set Drawable for $button start")
+
+		drawable.setBounds(0, 0, 100, 100)
+		button.setCompoundDrawables(null, null, drawable, null)
+		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 40f,
+			button.context.resources.displayMetrics);
+		button.layoutParams.height = px.toInt()
+	}
+
 }
+
+//------------------------------------  DownloadImageTask --------------------------------------
 
 private var mapDrawables: HashMap<String, Drawable> = HashMap()
+private var listRequestedDrawables: MutableList<String> = mutableListOf<String>()
 
-fun downloadImageHashed(button: Button, url: String) {
-	if (mapDrawables.containsKey(url)) {
-		val drawable = mapDrawables.get(url)!!
-		addImageToButton(button, drawable)
-	} else
-		DownloadImageTask(button, url).execute()
+private fun interface FunctionWithDrawableParam {
+	fun run(srt: Drawable?)
 }
 
-fun addImageToButton(button: Button, drawable: Drawable) {
-	drawable.setBounds(0, 0, 100, 100)
-	button.setCompoundDrawables(null, null, drawable, null)
-	val px = TypedValue.applyDimension(
-		TypedValue.COMPLEX_UNIT_SP, 40f,
-		button.context.resources.displayMetrics);
-	button.layoutParams.height = px.toInt()
-}
+private class DownloadImageTask(val url: String, val functionWithDrawableParam: FunctionWithDrawableParam) :
+	AsyncTask<String?, Void?, Drawable?>() {
 
-private class DownloadImageTask(val button: Button, val url: String) :
-	AsyncTask<String?, Void?, Drawable?>()
-{
 	override fun doInBackground(vararg params: String?): Drawable?	{
 		return try {
 			val strm = URL(url).getContent() as InputStream
@@ -295,8 +336,7 @@ private class DownloadImageTask(val button: Button, val url: String) :
 	}
 
 	override fun onPostExecute(drawable: Drawable?)	{
-		if (drawable == null) return
-		mapDrawables.put(url, drawable);
-		addImageToButton(button, drawable)
+		functionWithDrawableParam.run(drawable);
 	}
 }
+
