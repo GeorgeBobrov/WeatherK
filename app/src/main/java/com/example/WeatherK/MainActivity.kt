@@ -299,31 +299,5 @@ class MainActivity : AppCompatActivity() {
 
 }
 
-//------------------------------------  DownloadImageTask --------------------------------------
-
 private var mapDrawables: HashMap<String, Drawable> = HashMap()
 private var listRequestedDrawables: MutableList<String> = mutableListOf<String>()
-
-private fun interface FunctionWithDrawableParam {
-	fun run(srt: Drawable?)
-}
-
-private class DownloadImageTask(val url: String, val functionWithDrawableParam: FunctionWithDrawableParam) :
-	AsyncTask<String?, Void?, Drawable?>() {
-
-	override fun doInBackground(vararg params: String?): Drawable?	{
-		return try {
-			val strm = URL(url).getContent() as InputStream
-			Drawable.createFromStream(strm, "src name")
-		}
-		catch (e: java.lang.Exception) {
-			Log.e("Error", e.message)
-			null
-		}
-	}
-
-	override fun onPostExecute(drawable: Drawable?)	{
-		functionWithDrawableParam.run(drawable);
-	}
-}
-
