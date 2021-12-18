@@ -6,11 +6,8 @@ import android.util.Log
 import java.io.InputStream
 import java.net.URL
 
-fun interface FunctionWithDrawableParam {
-	fun run(srt: Drawable?)
-}
 
-class DownloadImageTask(val url: String, val onFinish: FunctionWithDrawableParam) :
+class DownloadImageTask(val url: String, val onFinish: (drawable: Drawable?) -> Unit) :
 	AsyncTask<String?, Void?, Drawable?>() {
 
 	override fun doInBackground(vararg params: String?): Drawable?	{
@@ -25,6 +22,6 @@ class DownloadImageTask(val url: String, val onFinish: FunctionWithDrawableParam
 	}
 
 	override fun onPostExecute(drawable: Drawable?)	{
-		onFinish.run(drawable);
+		onFinish(drawable);
 	}
 }
