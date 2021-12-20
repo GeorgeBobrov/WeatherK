@@ -23,20 +23,13 @@
             android:focusableInTouchMode="true"
             android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/editCity"
-                android:layout_height="match_parent"
+            <AutoCompleteTextView
+                android:id="@+id/selectCity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="5"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Kyiv"
-                android:layout_width="match_parent" />
-
-            <Spinner
-                android:id="@+id/spinner"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_width="wrap_content" />
+                android:completionThreshold="0"
+                android:text="Kyiv" />
 
             <Button
                 android:id="@+id/buttonQuery"
@@ -105,9 +98,7 @@
                 android:id="@+id/panelForecastHourly"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-            </LinearLayout>
+                android:orientation="vertical"/>
         </ScrollView>
 
     </LinearLayout>

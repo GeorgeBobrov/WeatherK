@@ -4,13 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
-import android.os.AsyncTask
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
@@ -24,8 +23,6 @@ import io.ktor.client.statement.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import java.io.InputStream
-import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -41,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 		setContentView(R.layout.activity_main)
 
 		prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
-		editCity.clearFocus()
+		selectCity.clearFocus()
 		//hides keyboard on start
 //        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		//needs for scrolling to work
@@ -56,14 +53,15 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	fun buttonQueryClick(sender: View?) {
-		editCity.clearFocus()
+		selectCity.clearFocus()
 		//hide keyboard
 		val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
 		imm.hideSoftInputFromWindow(linearLayoutH.windowToken, 0)
 
 		GlobalScope.async() {
+			val city = selectCity.text.toString()
 			val statement: HttpStatement = KtorClient.get(baseURLRemote + "weather") {
-				parameter("q", editCity.text.toString())
+				parameter("q", city)
 				parameter("appid", APIkey)
 			}
 			statement.execute { response: HttpResponse ->
@@ -73,6 +71,8 @@ class MainActivity : AppCompatActivity() {
 						processWeatherCity(weatherCity)
 						queryWeatherForecast(weatherCity)
 						clearPanelForecast()
+						if (!listCities.contains(city))
+							adapterCities.add(city)
 					}
 				} catch (cre: ClientRequestException) {
 					val stringBody: String = cre.response.receive()
@@ -167,8 +167,7 @@ class MainActivity : AppCompatActivity() {
 		button.backgroundTintList = ColorStateList.valueOf(darkColor)
 
 		panelForecastHourly.addView(button)
-		val px = TypedValue.applyDimension(
-			TypedValue.COMPLEX_UNIT_SP, 25f,
+		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 25f,
 			button.context.resources.displayMetrics);
 		button.layoutParams.height = px.toInt()
 		button.setPadding(1)
@@ -237,7 +236,7 @@ class MainActivity : AppCompatActivity() {
 		super.onPause()
 
 		val editor = prefs.edit()
-		editor.putString("city", editCity.text.toString())
+		editor.putString("city", selectCity.text.toString())
 
 		val timeZone = if (radioTimeZoneSelectedCity.isChecked)
 			"SelectedCity"
@@ -245,15 +244,20 @@ class MainActivity : AppCompatActivity() {
 			"Local"
 		editor.putString("timeZone", timeZone)
 
+		editor.putStringSet("cities", listCities.toSet())
+
 		editor.apply()
 	}
+
+	var listCities = mutableListOf<String>()
+	lateinit var adapterCities: ArrayAdapter<String>
 
 	override fun onResume() {
 		super.onResume()
 
 		if (prefs.contains("city")) {
 			val city = prefs.getString("city", "")!!
-			editCity.setText(city)
+			selectCity.setText(city)
 		}
 
 		val timeZone = prefs.getString("timeZone", "Local")!!
@@ -262,6 +266,12 @@ class MainActivity : AppCompatActivity() {
 			radioTimeZoneLocal.isChecked = true
 		if (timeZone == "SelectedCity")
 			radioTimeZoneSelectedCity.isChecked = true
+
+		val cities = prefs.getStringSet("cities", setOf())!!
+		listCities = cities.toMutableList()
+
+		adapterCities = ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, listCities)
+		selectCity.setAdapter(adapterCities)
 	}
 
 //------------------------------- Downloading images for buttons -------------------------------
