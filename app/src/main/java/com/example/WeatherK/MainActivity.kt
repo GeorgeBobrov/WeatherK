@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
 import android.text.method.ScrollingMovementMethod
 import android.util.TypedValue
 import android.view.View
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 	val baseURLRemote = "http://api.openweathermap.org/data/2.5/"
 	val APIkey = "534e27824fc3e9e6b42bd9076d595c84"
 	private lateinit var prefs: SharedPreferences
+	var handler = Handler()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -109,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 			statement.execute { response: HttpResponse ->
 				try {
 					val weatherForecast: ResponseWeatherForecast = response.receive()
-					runOnUiThread { processWeatherForecast(weatherForecast) }
+					runOnUiThread { processWeatherForecast(weatherForecast, true) }
 				} catch (cre: ClientRequestException) {
 					val stringBody: String = cre.response.receive()
 					runOnUiThread { textResponse.text = stringBody }
@@ -123,7 +125,7 @@ class MainActivity : AppCompatActivity() {
 	var dateFormatOnlyDay = SimpleDateFormat("dd", Locale.getDefault())
 	var g_weatherForecast: ResponseWeatherForecast? = null
 
-	fun processWeatherForecast(weatherForecast: ResponseWeatherForecast) {
+	fun processWeatherForecast(weatherForecast: ResponseWeatherForecast, animate: Boolean = false) {
 		g_weatherForecast = weatherForecast
 		clearPanelForecast()
 
@@ -139,14 +141,20 @@ class MainActivity : AppCompatActivity() {
 			if (dayNum != prevDayNum) {
 				prevDayNum = dayNum
 
-				val button = addDateLabel(date)
+				val button = addDateLabel(date, animate)
 				buttons.add(button)
 			}
 			val isNight = checkNight(hourSunrise, hourSunset, date.getHours())
 
-			val button = addHourForecast(hourForecast, isNight)
+			val button = addHourForecast(hourForecast, isNight, animate)
 			buttons.add(button)
 		}
+
+		if (animate)
+			buttons.forEachIndexed { i, button ->
+				handler.postDelayed( { button.visibility = View.VISIBLE }, 10L * i)
+			}
+
 	}
 
 	fun clearPanelForecast() {
@@ -159,14 +167,18 @@ class MainActivity : AppCompatActivity() {
 	val darkColor = 0xFFB0B0B0.toInt()
 
 	var dateFormatOnlyDate = SimpleDateFormat("dd MMMM", Locale.getDefault())
-	fun addDateLabel(date: Date): Button {
+	fun addDateLabel(date: Date, hide: Boolean = false): Button {
 		val button = Button(this)
 		val info = "${dateFormatOnlyDate.format(date)}:"
 		button.text = info
 		button.isAllCaps = false
 		button.backgroundTintList = ColorStateList.valueOf(darkColor)
 
+		if (hide)
+			button.visibility = View.GONE
+
 		panelForecastHourly.addView(button)
+
 		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 25f,
 			button.context.resources.displayMetrics);
 		button.layoutParams.height = px.toInt()
@@ -176,7 +188,7 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	var dateFormatOnlyTime = SimpleDateFormat("HH:mm", Locale.getDefault())
-	fun addHourForecast(hourForecast: Hourly, isNight: Boolean): Button {
+	fun addHourForecast(hourForecast: Hourly, isNight: Boolean, hide: Boolean = false): Button {
 		val weatherDescription = hourForecast.weather[0].main
 		val time = Date(hourForecast.dt * 1000L)
 
@@ -187,7 +199,15 @@ class MainActivity : AppCompatActivity() {
 		if (!isNight)
 			button.backgroundTintList = ColorStateList.valueOf(dayColor)
 
+		if (hide)
+			button.visibility = View.GONE
+
 		panelForecastHourly.addView(button)
+
+		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 40f,
+			button.context.resources.displayMetrics);
+		button.layoutParams.height = px.toInt()
+
 		val imgUrl = "http://openweathermap.org/img/w/${hourForecast.weather[0].icon}.png"
 		button.tag = imgUrl
 
@@ -302,9 +322,6 @@ class MainActivity : AppCompatActivity() {
 	fun addImageToButton(button: Button, drawable: Drawable) {
 		drawable.setBounds(0, 0, 100, 100)
 		button.setCompoundDrawables(null, null, drawable, null)
-		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 40f,
-			button.context.resources.displayMetrics);
-		button.layoutParams.height = px.toInt()
 	}
 
 }
