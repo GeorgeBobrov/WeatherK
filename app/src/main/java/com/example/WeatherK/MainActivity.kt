@@ -1,9 +1,14 @@
 package com.example.WeatherK
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.text.method.ScrollingMovementMethod
@@ -13,6 +18,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.setPadding
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -28,16 +34,19 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
+const val PERMISSION_REQUEST_Location = 0
 
 class MainActivity : AppCompatActivity() {
 	val baseURLRemote = "http://api.openweathermap.org/data/2.5/"
 	val APIkey = "534e27824fc3e9e6b42bd9076d595c84"
 	private lateinit var prefs: SharedPreferences
+	lateinit var locationManager: LocationManager
 	var handler = Handler()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
+		locationManager = getSystemService(android.content.Context.LOCATION_SERVICE) as LocationManager
 
 		prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
 		selectCity.clearFocus()
@@ -54,35 +63,46 @@ class MainActivity : AppCompatActivity() {
 		install(JsonFeature)
 	}
 
-	fun buttonQueryClick(sender: View?) {
+	fun buttonGetWeatherClick(sender: View?) {
+		hideKeyboard()
+
+		val city = selectCity.text.toString()
+		queryWeather(city)
+	}
+
+	fun hideKeyboard() {
 		selectCity.clearFocus()
-		//hide keyboard
+
 		val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
 		imm.hideSoftInputFromWindow(linearLayoutH.windowToken, 0)
+	}
 
-		GlobalScope.async() {
-			val city = selectCity.text.toString()
-			val statement: HttpStatement = KtorClient.get(baseURLRemote + "weather") {
+	fun queryWeather(city: String?, lat: Double? = null, lon: Double? = null) = GlobalScope.async() {
+		val statement: HttpStatement = KtorClient.get(baseURLRemote + "weather") {
+			if (city != null)
 				parameter("q", city)
-				parameter("appid", APIkey)
+			else {
+				parameter("lat", lat.toString())
+				parameter("lon", lon.toString())
 			}
-			statement.execute { response: HttpResponse ->
-				try {
-					val weatherCity: ResponseWeatherCity = response.receive()
-					runOnUiThread {
-						processWeatherCity(weatherCity)
-						queryWeatherForecast(weatherCity)
-						clearPanelForecast()
-						if (!listCities.contains(city))
-							adapterCities.add(city)
-					}
-				} catch (cre: ClientRequestException) {
-					val stringBody: String = cre.response.receive()
-					runOnUiThread { textResponse.text = stringBody }
+
+			parameter("appid", APIkey)
+		}
+		statement.execute { response: HttpResponse ->
+			try {
+				val weatherCity: ResponseWeatherCity = response.receive()
+				runOnUiThread {
+					processWeatherCity(weatherCity)
+					queryWeatherForecast(weatherCity)
+					clearPanelForecast()
+					if (!listCities.contains(city))
+						adapterCities.add(city)
 				}
+			} catch (cre: ClientRequestException) {
+				val stringBody: String = cre.response.receive()
+				runOnUiThread { textResponse.text = stringBody }
 			}
 		}
-
 	}
 
 	var g_weatherCity: ResponseWeatherCity? = null
@@ -322,6 +342,45 @@ class MainActivity : AppCompatActivity() {
 	fun addImageToButton(button: Button, drawable: Drawable) {
 		drawable.setBounds(0, 0, 100, 100)
 		button.setCompoundDrawables(null, null, drawable, null)
+	}
+
+//------------------------------- Get weather by coordinates -------------------------------
+
+	fun buttonGetLocationClick(sender: View?) {
+		hideKeyboard()
+
+		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+			ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+			getLocation()
+		} else
+			ActivityCompat.requestPermissions(this,
+				arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+				PERMISSION_REQUEST_Location)
+	}
+
+
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+		if (requestCode == PERMISSION_REQUEST_Location) {
+			if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				getLocation()
+			} else {
+				// Permission request was denied.
+			}
+		}
+	}
+
+	fun getLocation() {
+		val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+		queryWeather(null, location.latitude, location.longitude)
+
+//		textResponse.text = String.format("Coordinates: lat = %1$.4f, lon = %2$.4f, time = %3\$tF %3\$tT",
+//			location.latitude, location.longitude, Date(location.time))
+
+//		val intent = Intent(Intent.ACTION_VIEW,
+//			Uri.parse("http://maps.google.com/maps?addr=${location.latitude},${location.longitude}"))
+//		startActivity(intent)
 	}
 
 }

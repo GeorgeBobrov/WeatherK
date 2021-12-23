@@ -23,6 +23,15 @@
             android:focusableInTouchMode="true"
             android:orientation="horizontal">
 
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:paddingStart="5sp"
+                android:text="Type or select city:" />
+
             <AutoCompleteTextView
                 android:id="@+id/selectCity"
                 android:layout_width="match_parent"
@@ -32,13 +41,35 @@
                 android:text="Kyiv" />
 
             <Button
-                android:id="@+id/buttonQuery"
+                android:id="@+id/buttonGetWeather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="buttonQueryClick"
-                android:text="Query" />
+                android:layout_weight="0"
+                android:onClick="buttonGetWeatherClick"
+                android:text="Get weather" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:padding="5sp"
+                android:text="or:" />
+
+            <Button
+                android:id="@+id/buttonGetLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:onClick="buttonGetLocationClick"
+                android:text="Get weather here" />
         </LinearLayout>
 
         <RadioGroup
