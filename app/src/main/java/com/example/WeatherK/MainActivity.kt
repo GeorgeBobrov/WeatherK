@@ -2,13 +2,11 @@ package com.example.WeatherK
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.text.method.ScrollingMovementMethod
@@ -77,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 		imm.hideSoftInputFromWindow(linearLayoutH.windowToken, 0)
 	}
 
-	fun queryWeather(city: String?, lat: Double? = null, lon: Double? = null) = GlobalScope.async() {
+	fun queryWeather(city: String?, lat: Float? = null, lon: Float? = null) = GlobalScope.async() {
 		val statement: HttpStatement = KtorClient.get(baseURLRemote + "weather") {
 			if (city != null)
 				parameter("q", city)
@@ -86,14 +84,16 @@ class MainActivity : AppCompatActivity() {
 				parameter("lon", lon.toString())
 			}
 
+			parameter("lang", getResources().getString(R.string.current_locale))
 			parameter("appid", APIkey)
 		}
+
 		statement.execute { response: HttpResponse ->
 			try {
 				val weatherCity: ResponseWeatherCity = response.receive()
 				runOnUiThread {
 					processWeatherCity(weatherCity)
-					queryWeatherForecast(weatherCity)
+					queryWeatherForecast(weatherCity.coord.lat, weatherCity.coord.lon)
 					clearPanelForecast()
 					if (!listCities.contains(city))
 						adapterCities.add(city)
@@ -113,29 +113,32 @@ class MainActivity : AppCompatActivity() {
 		val weatherDescription = weatherCity.weather[0].main
 		val time = Date(weatherCity.dt * 1000L)
 
-		val innerText = "Now, ${dateFormatDateTime.format(time)}, in ${weatherCity.name} is " +
-				"${normalizeTemp(weatherCity.main.temp)} °C, $weatherDescription"
+//		val innerText = "Now, ${dateFormatDateTime.format(time)}, in ${weatherCity.name} is " +
+//				"${normalizeTemp(weatherCity.main.temp)} °C, $weatherDescription"
+
+		val innerText = String.format(getResources().getString(R.string.weather_now),
+			dateFormatDateTime.format(time), weatherCity.name,
+			normalizeTemp(weatherCity.main.temp), weatherDescription)
 
 		textResponse.text = innerText
 	}
 
-	fun queryWeatherForecast(a_weatherCity: ResponseWeatherCity) {
+	fun queryWeatherForecast(lat: Float, lon: Float) = GlobalScope.async() {
 
-		GlobalScope.async() {
-			val statement: HttpStatement = KtorClient.get(baseURLRemote + "onecall") {
-				parameter("lat", a_weatherCity.coord.lat.toString())
-				parameter("lon", a_weatherCity.coord.lon.toString())
-				parameter("appid", APIkey)
-			}
+		val statement: HttpStatement = KtorClient.get(baseURLRemote + "onecall") {
+			parameter("lat", lat.toString())
+			parameter("lon", lon.toString())
+			parameter("lang", getResources().getString(R.string.current_locale))
+			parameter("appid", APIkey)
+		}
 
-			statement.execute { response: HttpResponse ->
-				try {
-					val weatherForecast: ResponseWeatherForecast = response.receive()
-					runOnUiThread { processWeatherForecast(weatherForecast, true) }
-				} catch (cre: ClientRequestException) {
-					val stringBody: String = cre.response.receive()
-					runOnUiThread { textResponse.text = stringBody }
-				}
+		statement.execute { response: HttpResponse ->
+			try {
+				val weatherForecast: ResponseWeatherForecast = response.receive()
+				runOnUiThread { processWeatherForecast(weatherForecast, true) }
+			} catch (cre: ClientRequestException) {
+				val stringBody: String = cre.response.receive()
+				runOnUiThread { textResponse.text = stringBody }
 			}
 		}
 
@@ -153,7 +156,7 @@ class MainActivity : AppCompatActivity() {
 		val hourSunset = Date(g_weatherCity?.sys!!.sunset * 1000L).getHours()
 		var prevDayNum = 0
 
-		setupTimeZone(weatherForecast.timezone)
+		setTimeZone(weatherForecast.timezone, true)
 
 		for (hourForecast in weatherForecast.hourly) {
 			val date = Date(hourForecast.dt * 1000L)
@@ -251,14 +254,11 @@ class MainActivity : AppCompatActivity() {
 //------------------------------------ TimeZone --------------------------------------
 
 	fun radioTimeZoneClick(sender: View?) {
-		if (g_weatherCity == null) return
-		if (g_weatherForecast == null) return
-
-		processWeatherForecast(g_weatherForecast!!) //setupTimeZone here
-		processWeatherCity(g_weatherCity!!) //show date with new TimeZone setted up
+		if (g_weatherForecast != null)
+			setTimeZone(g_weatherForecast!!.timezone, false)
 	}
 
-	fun setupTimeZone(timeZoneStr: String?) {
+	fun setTimeZone(timeZoneStr: String?, skipProcessWeatherForecast: Boolean) {
 		val timeZone = if (radioTimeZoneSelectedCity.isChecked) {
 			TimeZone.getTimeZone(timeZoneStr)
 		} else
@@ -268,6 +268,11 @@ class MainActivity : AppCompatActivity() {
 		dateFormatOnlyDate.timeZone = timeZone
 		dateFormatOnlyTime.timeZone = timeZone
 		dateFormatDateTime.timeZone = timeZone
+
+		if (g_weatherCity != null)
+			processWeatherCity(g_weatherCity!!)
+		if (g_weatherForecast != null && !skipProcessWeatherForecast)
+			processWeatherForecast(g_weatherForecast!!)
 	}
 
 //------------------------------------  Saving settings --------------------------------------
@@ -373,7 +378,8 @@ class MainActivity : AppCompatActivity() {
 	fun getLocation() {
 		val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
-		queryWeather(null, location.latitude, location.longitude)
+		if (location != null)
+			queryWeather(null, location.latitude as Float, location.longitude as Float)
 
 //		textResponse.text = String.format("Coordinates: lat = %1$.4f, lon = %2$.4f, time = %3\$tF %3\$tT",
 //			location.latitude, location.longitude, Date(location.time))

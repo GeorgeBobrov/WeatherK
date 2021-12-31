@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Weather K</string>
+    <string name="select_city">Type or select city:</string>
+    <string name="Get_weather">Get weather</string>
+    <string name="Get_weather_here">Get weather here</string>
+    <string name="or">or:</string>
+    <string name="TimeZone">TimeZone:</string>
+    <string name="Local">Local</string>
+    <string name="of_selected_City">of selected City</string>
+    <string name="Forecast">Forecast:</string>
+    <string name="weather_now">Now, %1$s, in %2$s is %3$d °C, %4$s</string>
+    <string name="current_locale">en</string>
 </resources>

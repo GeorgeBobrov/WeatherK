@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Weather K</string>
+    <string name="select_city">Введите или выберите город:</string>
+    <string name="Get_weather">Узнать погоду</string>
+    <string name="Get_weather_here">Узнать погоду здесь</string>
+    <string name="or">или:</string>
+    <string name="TimeZone">Часовой пояс:</string>
+    <string name="Local">Местный</string>
+    <string name="of_selected_City">выбранного города</string>
+    <string name="Forecast">Прогноз:</string>
+    <string name="weather_now">Сейчас, %1$s, в %2$s %3$d °C, %4$s</string>
+    <string name="current_locale">ru</string>
+</resources>

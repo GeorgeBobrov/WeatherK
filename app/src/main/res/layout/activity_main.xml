@@ -25,18 +25,21 @@
 
             <TextView
                 android:id="@+id/textView3"
-                android:layout_width="wrap_content"
+                android:layout_width="98dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"
+                android:layout_margin="0sp"
+                android:layout_weight="0"
                 android:paddingStart="5sp"
-                android:text="Type or select city:" />
+                android:paddingEnd="0sp"
+                android:text="@string/select_city" />
 
             <AutoCompleteTextView
                 android:id="@+id/selectCity"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="5"
+                android:layout_marginStart="0sp"
+                android:layout_weight="1"
                 android:completionThreshold="0"
                 android:text="Kyiv" />
 
@@ -46,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:onClick="buttonGetWeatherClick"
-                android:text="Get weather" />
+                android:text="@string/Get_weather" />
 
         </LinearLayout>
 
@@ -61,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:padding="5sp"
-                android:text="or:" />
+                android:text="@string/or" />
 
             <Button
                 android:id="@+id/buttonGetLocation"
@@ -69,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:onClick="buttonGetLocationClick"
-                android:text="Get weather here" />
+                android:text="@string/Get_weather_here" />
         </LinearLayout>
 
         <RadioGroup
@@ -81,24 +84,26 @@
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:paddingStart="10sp"
                 android:paddingEnd="10sp"
-                android:text="TimeZone:" />
+                android:text="@string/TimeZone" />
 
             <RadioButton
                 android:id="@+id/radioTimeZoneLocal"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:onClick="radioTimeZoneClick"
-                android:text="Local" />
+                android:text="@string/Local" />
 
             <RadioButton
                 android:id="@+id/radioTimeZoneSelectedCity"
-                android:layout_width="163dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:onClick="radioTimeZoneClick"
-                android:text="of selected City" />
+                android:text="@string/of_selected_City" />
 
         </RadioGroup>
 
@@ -107,6 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="53dp"
             android:paddingStart="10sp"
+            android:paddingEnd="10sp"
             android:paddingBottom="2sp"
             android:scrollbars="vertical"
             android:text="-"
@@ -118,7 +124,8 @@
             android:layout_height="wrap_content"
             android:padding="5sp"
             android:paddingStart="10sp"
-            android:text="Forecast:"
+            android:paddingEnd="10sp"
+            android:text="@string/Forecast"
             android:textSize="16sp" />
 
         <ScrollView
