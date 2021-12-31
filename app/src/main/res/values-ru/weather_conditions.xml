@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="Clear">Ясно</string>
+    <string name="Clouds">Облачно</string>
+    <string name="Drizzle">Мелкий дождь</string>
+    <string name="Rain">Дождь</string>
+    <string name="Thunderstorm">Гроза</string>
+    <string name="Mist">Туман</string>
+    <string name="Fog">Туман</string>
+    <string name="Haze">Туман</string>
+    <string name="Dust">Пыльная буря</string>
+    <string name="Sand">Песчаная буря</string>
+</resources>

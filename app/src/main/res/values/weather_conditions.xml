@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="Clear">Clear</string>
+    <string name="Clouds">Clouds</string>
+    <string name="Drizzle">Drizzle</string>
+    <string name="Rain">Rain</string>
+    <string name="Thunderstorm">Thunderstorm</string>
+    <string name="Mist">Mist</string>
+    <string name="Fog">Fog</string>
+    <string name="Haze">Haze</string>
+    <string name="Dust">Dust</string>
+    <string name="Sand">Sand</string>
+</resources>

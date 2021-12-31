@@ -100,7 +100,10 @@ class MainActivity : AppCompatActivity() {
 				}
 			} catch (cre: ClientRequestException) {
 				val stringBody: String = cre.response.receive()
-				runOnUiThread { textResponse.text = stringBody }
+				runOnUiThread {
+					textResponse.text = stringBody
+					clearPanelForecast()
+				}
 			}
 		}
 	}
@@ -110,17 +113,25 @@ class MainActivity : AppCompatActivity() {
 	var dateFormatDateTime = SimpleDateFormat()
 	fun processWeatherCity(weatherCity: ResponseWeatherCity) {
 		g_weatherCity = weatherCity
-		val weatherDescription = weatherCity.weather[0].main
+		val weatherDescription = localizeWeatherDescription(weatherCity.weather[0].main)
 		val time = Date(weatherCity.dt * 1000L)
 
 //		val innerText = "Now, ${dateFormatDateTime.format(time)}, in ${weatherCity.name} is " +
 //				"${normalizeTemp(weatherCity.main.temp)} °C, $weatherDescription"
 
-		val innerText = String.format(getResources().getString(R.string.weather_now),
+		val innerText = String.format(resources.getString(R.string.weather_now),
 			dateFormatDateTime.format(time), weatherCity.name,
 			normalizeTemp(weatherCity.main.temp), weatherDescription)
 
 		textResponse.text = innerText
+	}
+
+	fun localizeWeatherDescription(weatherDescription: String?): String? {
+		val strId = resources.getIdentifier(weatherDescription, "string", packageName)
+		if (strId != 0)
+			return getString(strId)
+
+		return weatherDescription
 	}
 
 	fun queryWeatherForecast(lat: Float, lon: Float) = GlobalScope.async() {
@@ -128,7 +139,7 @@ class MainActivity : AppCompatActivity() {
 		val statement: HttpStatement = KtorClient.get(baseURLRemote + "onecall") {
 			parameter("lat", lat.toString())
 			parameter("lon", lon.toString())
-			parameter("lang", getResources().getString(R.string.current_locale))
+			parameter("lang", resources.getString(R.string.current_locale))
 			parameter("appid", APIkey)
 		}
 
@@ -175,7 +186,7 @@ class MainActivity : AppCompatActivity() {
 
 		if (animate)
 			buttons.forEachIndexed { i, button ->
-				handler.postDelayed( { button.visibility = View.VISIBLE }, 10L * i)
+				handler.postDelayed({ button.visibility = View.VISIBLE }, 10L * i)
 			}
 
 	}
@@ -212,7 +223,7 @@ class MainActivity : AppCompatActivity() {
 
 	var dateFormatOnlyTime = SimpleDateFormat("HH:mm", Locale.getDefault())
 	fun addHourForecast(hourForecast: Hourly, isNight: Boolean, hide: Boolean = false): Button {
-		val weatherDescription = hourForecast.weather[0].main
+		val weatherDescription = localizeWeatherDescription(hourForecast.weather[0].main)
 		val time = Date(hourForecast.dt * 1000L)
 
 		val button = Button(this)
