@@ -53,10 +53,23 @@
 
         </LinearLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal">
+            android:layout_height="48dp">
+
+            <ToggleButton
+                android:id="@+id/toggleButtonSettings"
+                android:layout_width="53dp"
+                android:layout_height="0dp"
+                android:layout_weight="0"
+                android:checked="false"
+                android:drawableRight="@android:drawable/ic_menu_preferences"
+                android:onClick="toggleButtonSettingsClick"
+                android:textOff=" "
+                android:textOn=" "
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textView4"
@@ -64,7 +77,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:padding="5sp"
-                android:text="@string/or" />
+                android:text="@string/or"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <Button
                 android:id="@+id/buttonGetLocation"
@@ -72,40 +87,52 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:onClick="buttonGetLocationClick"
-                android:text="@string/Get_weather_here" />
-        </LinearLayout>
+                android:text="@string/Get_weather_here"
+                tools:layout_editor_absoluteX="38dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <RadioGroup
+        <LinearLayout
+            android:id="@+id/layoutSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="gone">
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
+            <RadioGroup
+                android:id="@+id/layoutSettingsTZ"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:paddingStart="10sp"
-                android:paddingEnd="10sp"
-                android:text="@string/TimeZone" />
+                android:orientation="horizontal"
+                android:visibility="visible">
 
-            <RadioButton
-                android:id="@+id/radioTimeZoneLocal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:onClick="radioTimeZoneClick"
-                android:text="@string/Local" />
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:paddingStart="10sp"
+                    android:paddingEnd="10sp"
+                    android:text="@string/TimeZone" />
 
-            <RadioButton
-                android:id="@+id/radioTimeZoneSelectedCity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:onClick="radioTimeZoneClick"
-                android:text="@string/of_selected_City" />
+                <RadioButton
+                    android:id="@+id/radioTimeZoneLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:onClick="radioTimeZoneClick"
+                    android:text="@string/Local" />
 
-        </RadioGroup>
+                <RadioButton
+                    android:id="@+id/radioTimeZoneSelectedCity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:onClick="radioTimeZoneClick"
+                    android:text="@string/of_selected_City" />
+
+            </RadioGroup>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textResponse"

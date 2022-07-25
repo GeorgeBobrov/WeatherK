@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Weather K</string>
+    <string name="app_name">Weather</string>
     <string name="select_city">Type or select city:</string>
     <string name="Get_weather">Get weather</string>
     <string name="Get_weather_here">Get weather here</string>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Weather K</string>
+    <string name="app_name">Weather</string>
     <string name="select_city">Введите или выберите город:</string>
     <string name="Get_weather">Узнать погоду</string>
     <string name="Get_weather_here">Узнать погоду здесь</string>

@@ -400,6 +400,16 @@ class MainActivity : AppCompatActivity() {
 //		startActivity(intent)
 	}
 
+	fun toggleButtonSettingsClick(sender: View?) {
+
+		if (toggleButtonSettings.isChecked)
+			layoutSettings.visibility = View.VISIBLE
+		else
+			layoutSettings.visibility = View.GONE
+	}
+
+
+
 }
 
 private var mapDrawables: HashMap<String, Drawable> = HashMap()
