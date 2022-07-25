@@ -302,6 +302,8 @@ class MainActivity : AppCompatActivity() {
 
 		editor.putStringSet("cities", listCities.toSet())
 
+		editor.putBoolean("autoGetWeather", checkBoxAutoGetWeather.isChecked)
+
 		editor.apply()
 	}
 
@@ -328,6 +330,11 @@ class MainActivity : AppCompatActivity() {
 
 		adapterCities = ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, listCities)
 		selectCity.setAdapter(adapterCities)
+
+		checkBoxAutoGetWeather.isChecked = prefs.getBoolean("autoGetWeather", false)
+
+		if (checkBoxAutoGetWeather.isChecked)
+			buttonGetWeatherClick(buttonGetWeather)
 	}
 
 //------------------------------- Downloading images for buttons -------------------------------

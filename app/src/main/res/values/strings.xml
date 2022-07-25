@@ -10,4 +10,5 @@
     <string name="Forecast">Forecast:</string>
     <string name="weather_now">Now, %1$s, in %2$s is %3$d °C, %4$s</string>
     <string name="current_locale">en</string>
+    <string name="AutoGetWeather">Auto get weather on app launch</string>
 </resources>

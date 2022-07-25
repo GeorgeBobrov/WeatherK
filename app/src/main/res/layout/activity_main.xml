@@ -59,11 +59,11 @@
 
             <ToggleButton
                 android:id="@+id/toggleButtonSettings"
-                android:layout_width="53dp"
-                android:layout_height="0dp"
+                android:layout_width="52dp"
+                android:layout_height="51dp"
                 android:layout_weight="0"
                 android:checked="false"
-                android:drawableRight="@android:drawable/ic_menu_preferences"
+                android:drawableStart="@drawable/ic_settings_black_30dp"
                 android:onClick="toggleButtonSettingsClick"
                 android:textOff=" "
                 android:textOn=" "
@@ -94,7 +94,7 @@
         <LinearLayout
             android:id="@+id/layoutSettings"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="63dp"
             android:orientation="vertical"
             android:visibility="gone">
 
@@ -132,12 +132,18 @@
 
             </RadioGroup>
 
+            <CheckBox
+                android:id="@+id/checkBoxAutoGetWeather"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/AutoGetWeather" />
+
         </LinearLayout>
 
         <TextView
             android:id="@+id/textResponse"
             android:layout_width="match_parent"
-            android:layout_height="53dp"
+            android:layout_height="61dp"
             android:paddingStart="10sp"
             android:paddingEnd="10sp"
             android:paddingBottom="2sp"

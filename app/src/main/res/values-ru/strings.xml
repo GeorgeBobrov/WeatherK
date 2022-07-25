@@ -10,4 +10,5 @@
     <string name="Forecast">Прогноз:</string>
     <string name="weather_now">Сейчас, %1$s, в %2$s %3$d °C, %4$s</string>
     <string name="current_locale">ru</string>
+    <string name="AutoGetWeather">Автом. получить погоду при запуске</string>
 </resources>
