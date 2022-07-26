@@ -25,7 +25,7 @@ import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_weather.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import java.text.SimpleDateFormat
@@ -34,7 +34,7 @@ import kotlin.math.roundToInt
 
 const val PERMISSION_REQUEST_Location = 0
 
-class MainActivity : AppCompatActivity() {
+class ActivityWeather : AppCompatActivity() {
 	val baseURLRemote = "http://api.openweathermap.org/data/2.5/"
 	val APIkey = "534e27824fc3e9e6b42bd9076d595c84"
 	private lateinit var prefs: SharedPreferences
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		setContentView(R.layout.activity_main)
+		setContentView(R.layout.activity_weather)
 		locationManager = getSystemService(android.content.Context.LOCATION_SERVICE) as LocationManager
 
 		prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 		dateFormatDateTime.applyPattern(pattern + " (zzzz)")
 	}
 
-	val KtorClient = HttpClient(CIO){
+	val KtorClient = HttpClient(CIO) {
 		install(JsonFeature)
 	}
 
@@ -394,17 +394,12 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	fun getLocation() {
+		// Permission was checked in onRequestPermissionsResult
 		val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
 		if (location != null)
 			queryWeather(null, location.latitude as Float, location.longitude as Float)
 
-//		textResponse.text = String.format("Coordinates: lat = %1$.4f, lon = %2$.4f, time = %3\$tF %3\$tT",
-//			location.latitude, location.longitude, Date(location.time))
-
-//		val intent = Intent(Intent.ACTION_VIEW,
-//			Uri.parse("http://maps.google.com/maps?addr=${location.latitude},${location.longitude}"))
-//		startActivity(intent)
 	}
 
 	fun toggleButtonSettingsClick(sender: View?) {

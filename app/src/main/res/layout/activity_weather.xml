@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.WeatherK.MainActivity">
+    tools:context="com.example.WeatherK.ActivityWeather">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -79,6 +79,7 @@
                 android:padding="5sp"
                 android:text="@string/or"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
@@ -88,7 +89,9 @@
                 android:layout_weight="0"
                 android:onClick="buttonGetLocationClick"
                 android:text="@string/Get_weather_here"
-                tools:layout_editor_absoluteX="38dp" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView4"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
