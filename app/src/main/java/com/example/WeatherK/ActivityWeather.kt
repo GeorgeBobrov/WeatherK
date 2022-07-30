@@ -9,13 +9,18 @@ import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
+import android.text.Layout
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.app.ActivityCompat
 import androidx.core.view.setPadding
 import io.ktor.client.*
@@ -26,6 +31,8 @@ import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.android.synthetic.main.activity_weather.*
+import kotlinx.android.synthetic.main.card_weather_hour.*
+
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import java.text.SimpleDateFormat
@@ -155,7 +162,8 @@ class ActivityWeather : AppCompatActivity() {
 
 	}
 
-	var buttons = mutableListOf<Button>()
+	var forecastViews = mutableListOf<View>()
+
 	var dateFormatOnlyDay = SimpleDateFormat("dd", Locale.getDefault())
 	var g_weatherForecast: ResponseWeatherForecast? = null
 
@@ -176,25 +184,28 @@ class ActivityWeather : AppCompatActivity() {
 				prevDayNum = dayNum
 
 				val button = addDateLabel(date, animate)
-				buttons.add(button)
+				forecastViews.add(button)
 			}
 			val isNight = checkNight(hourSunrise, hourSunset, date.getHours())
 
-			val button = addHourForecast(hourForecast, isNight, animate)
-			buttons.add(button)
+//			val button = addHourForecast(hourForecast, isNight, animate)
+//			forecastViews.add(button)
+
+			val layout = addHourForecastFragment(hourForecast, isNight, animate)
+			forecastViews.add(layout)
 		}
 
 		if (animate)
-			buttons.forEachIndexed { i, button ->
-				handler.postDelayed({ button.visibility = View.VISIBLE }, 10L * i)
+			forecastViews.forEachIndexed { i, view ->
+				handler.postDelayed({ view.visibility = View.VISIBLE }, 10L * i)
 			}
 
 	}
 
 	fun clearPanelForecast() {
-		for (button in buttons)
-			panelForecastHourly.removeView(button)
-		buttons.clear()
+		for (view in forecastViews)
+			panelForecastHourly.removeView(view)
+		forecastViews.clear()
 	}
 
 	val dayColor = 0xFFFFE4C4.toInt() //bisque
@@ -221,6 +232,7 @@ class ActivityWeather : AppCompatActivity() {
 		return button
 	}
 
+
 	var dateFormatOnlyTime = SimpleDateFormat("HH:mm", Locale.getDefault())
 	fun addHourForecast(hourForecast: Hourly, isNight: Boolean, hide: Boolean = false): Button {
 		val weatherDescription = localizeWeatherDescription(hourForecast.weather[0].main)
@@ -243,12 +255,47 @@ class ActivityWeather : AppCompatActivity() {
 		button.layoutParams.height = px.toInt()
 
 		val imgUrl = "http://openweathermap.org/img/w/${hourForecast.weather[0].icon}.png"
-		button.tag = imgUrl
-
 		downloadImageCached(button, imgUrl)
 
 		return button
 	}
+
+	fun addHourForecastFragment(hourForecast: Hourly, isNight: Boolean, hide: Boolean = false): FrameLayout {
+		val weatherDescription = localizeWeatherDescription(hourForecast.weather[0].main)
+		val time = Date(hourForecast.dt * 1000L)
+
+		val frameLayout = FrameLayout(ContextThemeWrapper(this, R.style.Widget_AppCompat_Button_Small))
+		frameLayout.id = View.generateViewId()
+		panelForecastHourly.addView(frameLayout)
+
+		if (!isNight)
+			frameLayout.backgroundTintList = ColorStateList.valueOf(dayColor)
+
+		if (hide)
+			frameLayout.visibility = View.GONE
+
+		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 40f,
+			frameLayout.context.resources.displayMetrics);
+		frameLayout.layoutParams.height = px.toInt()
+		frameLayout.setPadding(0)
+
+		val fragment = FragmentWeatherHour()
+
+		supportFragmentManager.beginTransaction()
+			.add(frameLayout.id, fragment)
+			.commitNow()
+		frameLayout.tag = fragment
+
+		fragment.textTime.text = "${dateFormatOnlyTime.format(time)}:"
+		fragment.textTemp.text = "${normalizeTemp(hourForecast.temp)} °C,"
+		fragment.textWeather.text = weatherDescription
+
+		val imgUrl = "http://openweathermap.org/img/w/${hourForecast.weather[0].icon}.png"
+		downloadImageCached(fragment.image, imgUrl)
+
+		return frameLayout
+	}
+
 
 	fun checkNight(hourSunrise: Int, hourSunset: Int, hourTest: Int): Boolean {
 		if (hourSunset > hourSunrise)
@@ -339,11 +386,12 @@ class ActivityWeather : AppCompatActivity() {
 
 //------------------------------- Downloading images for buttons -------------------------------
 
-	fun downloadImageCached(button: Button, url: String) {
+	fun downloadImageCached(view: View, url: String) {
+		view.tag = url
 
 		if (mapDrawables.containsKey(url)) {
 			val drawable = mapDrawables.get(url)!!
-			addImageToButton(button, drawable)
+			addImageToView(view, drawable)
 		} else {
 			if (listRequestedDrawables.contains(url)) return
 			listRequestedDrawables.add(url)
@@ -354,17 +402,29 @@ class ActivityWeather : AppCompatActivity() {
 				if (drawable != null) {
 					mapDrawables.put(url, drawable);
 
-					for (ibutton in buttons)
-						if (ibutton.tag == url)
-							addImageToButton(ibutton, drawable)
+					for (iview in forecastViews) {
+						if (iview is Button && iview.tag == url)
+							addImageToView(iview, drawable)
+						if (iview is FrameLayout) {
+							val image = (iview.tag as FragmentWeatherHour).image
+							if (image.tag == url)
+								addImageToView(image, drawable)
+						}
+					}
 				}
 			}.execute()
 		}
 	}
 
-	fun addImageToButton(button: Button, drawable: Drawable) {
-		drawable.setBounds(0, 0, 100, 100)
-		button.setCompoundDrawables(null, null, drawable, null)
+	fun addImageToView(view: View, drawable: Drawable) {
+		if (view is Button) {
+			drawable.setBounds(0, 0, 100, 100)
+			view.setCompoundDrawables(null, null, drawable, null)
+		}
+
+		if (view is ImageView) {
+			view.setImageDrawable(drawable)
+		}
 	}
 
 //------------------------------- Get weather by coordinates -------------------------------
