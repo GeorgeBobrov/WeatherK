@@ -1,180 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayoutMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.example.WeatherK.ActivityWeather">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutCity"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content"
+        android:focusableInTouchMode="true">
 
-        <LinearLayout
-            android:id="@+id/linearLayoutH"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusableInTouchMode="true"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="98dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="0sp"
-                android:layout_weight="0"
-                android:paddingStart="5sp"
-                android:paddingEnd="0sp"
-                android:text="@string/select_city" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:hint="@string/select_city"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonGetWeather"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
                 android:id="@+id/selectCity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="0sp"
-                android:layout_weight="1"
-                android:completionThreshold="0"
-                android:text="Kyiv" />
-
-            <Button
-                android:id="@+id/buttonGetWeather"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:onClick="buttonGetWeatherClick"
-                android:text="@string/Get_weather" />
-
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp">
-
-            <ToggleButton
-                android:id="@+id/toggleButtonSettings"
-                android:layout_width="52dp"
-                android:layout_height="51dp"
-                android:layout_weight="0"
-                android:checked="false"
-                android:drawableStart="@drawable/ic_settings_black_30dp"
-                android:onClick="toggleButtonSettingsClick"
-                android:textOff=" "
-                android:textOn=" "
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:padding="5sp"
-                android:text="@string/or"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/buttonGetLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:onClick="buttonGetLocationClick"
-                android:text="@string/Get_weather_here"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView4"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <LinearLayout
-            android:id="@+id/layoutSettings"
-            android:layout_width="match_parent"
-            android:layout_height="63dp"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <RadioGroup
-                android:id="@+id/layoutSettingsTZ"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="visible">
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:paddingStart="10sp"
-                    android:paddingEnd="10sp"
-                    android:text="@string/TimeZone" />
+        <Button
+            android:id="@+id/buttonGetWeather"
+            android:layout_width="93dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="-5dp"
+            android:onClick="buttonGetWeatherClick"
+            android:text="@string/Get_weather"
+            android:textAllCaps="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textInputLayout"
+            app:layout_constraintTop_toTopOf="parent" />
 
-                <RadioButton
-                    android:id="@+id/radioTimeZoneLocal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:onClick="radioTimeZoneClick"
-                    android:text="@string/Local" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <RadioButton
-                    android:id="@+id/radioTimeZoneSelectedCity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:onClick="radioTimeZoneClick"
-                    android:text="@string/of_selected_City" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-            </RadioGroup>
-
-            <CheckBox
-                android:id="@+id/checkBoxAutoGetWeather"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/AutoGetWeather" />
-
-        </LinearLayout>
+        <ToggleButton
+            android:id="@+id/toggleButtonSettings"
+            android:layout_width="52dp"
+            android:layout_height="51dp"
+            android:layout_weight="0"
+            android:checked="false"
+            android:drawableStart="@drawable/ic_settings_black_30dp"
+            android:onClick="toggleButtonSettingsClick"
+            android:textOff=" "
+            android:textOn=" "
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textResponse"
-            android:layout_width="match_parent"
-            android:layout_height="61dp"
-            android:paddingStart="10sp"
-            android:paddingEnd="10sp"
-            android:paddingBottom="2sp"
-            android:scrollbars="vertical"
-            android:text="-"
-            android:textSize="16sp" />
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:padding="5sp"
+            android:text="@string/or"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/textView2"
+        <Button
+            android:id="@+id/buttonGetLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="0"
+            android:onClick="buttonGetLocationClick"
+            android:text="@string/Get_weather_here"
+            android:textAllCaps="false"
+            app:icon="@android:drawable/ic_menu_mylocation"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView4"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <RadioGroup
+            android:id="@+id/layoutSettingsTZ"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5sp"
-            android:paddingStart="10sp"
-            android:paddingEnd="10sp"
-            android:text="@string/Forecast"
-            android:textSize="16sp" />
+            android:orientation="horizontal"
+            android:visibility="visible">
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:id="@+id/panelForecastHourly"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"/>
-        </ScrollView>
+                android:layout_gravity="center_vertical"
+                android:paddingStart="10sp"
+                android:paddingEnd="10sp"
+                android:text="@string/TimeZone" />
+
+            <RadioButton
+                android:id="@+id/radioTimeZoneLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:onClick="radioTimeZoneClick"
+                android:text="@string/Local" />
+
+            <RadioButton
+                android:id="@+id/radioTimeZoneSelectedCity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:onClick="radioTimeZoneClick"
+                android:text="@string/of_selected_City" />
+
+        </RadioGroup>
+
+        <CheckBox
+            android:id="@+id/checkBoxAutoGetWeather"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/AutoGetWeather" />
+
+        <Button
+            android:id="@+id/buttonDeleteCurCityFromList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:onClick="buttonDeleteCurCityFromListClick"
+            android:text="@string/DeleteCurCityFromList"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/textResponse"
+        android:layout_width="match_parent"
+        android:layout_height="61dp"
+        android:paddingStart="10sp"
+        android:paddingEnd="10sp"
+        android:paddingBottom="2sp"
+        android:scrollbars="vertical"
+        android:text="-"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5sp"
+        android:paddingStart="10sp"
+        android:paddingEnd="10sp"
+        android:text="@string/Forecast"
+        android:textSize="16sp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="SpeakableTextPresentCheck">
+
+        <LinearLayout
+            android:id="@+id/panelForecastHourly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+
+</LinearLayout>

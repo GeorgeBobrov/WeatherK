@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Weather</string>
-    <string name="select_city">Type or select city:</string>
+    <string name="select_city">Type or select city</string>
     <string name="Get_weather">Get weather</string>
     <string name="Get_weather_here">Get weather here</string>
     <string name="or">or:</string>
@@ -11,4 +11,5 @@
     <string name="weather_now">Now, %1$s, in %2$s is %3$d °C, %4$s</string>
     <string name="current_locale">en</string>
     <string name="AutoGetWeather">Auto get weather on app launch</string>
+    <string name="DeleteCurCityFromList">Delete current city from list</string>
 </resources>
