@@ -16,7 +16,7 @@ class DownloadImageTask(val url: String, val onFinish: (drawable: Drawable?) -> 
 			Drawable.createFromStream(strm, "src name")
 		}
 		catch (e: java.lang.Exception) {
-			Log.e("Error", e.message)
+			Log.e("Error", e.message ?: "Null")
 			null
 		}
 	}

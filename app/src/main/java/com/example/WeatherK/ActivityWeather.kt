@@ -12,6 +12,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.text.method.ScrollingMovementMethod
+import android.transition.TransitionManager
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -79,10 +80,11 @@ class ActivityWeather : AppCompatActivity() {
 		selectCity.clearFocus()
 
 		val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-		imm.hideSoftInputFromWindow(linearLayoutH.windowToken, 0)
+		imm.hideSoftInputFromWindow(layoutCity.windowToken, 0)
 	}
 
 	fun queryWeather(city: String?, lat: Float? = null, lon: Float? = null) = GlobalScope.async() {
+
 		val statement: HttpStatement = KtorClient.get(baseURLRemote + "weather") {
 			if (city != null)
 				parameter("q", city)
@@ -102,8 +104,16 @@ class ActivityWeather : AppCompatActivity() {
 					processWeatherCity(weatherCity)
 					queryWeatherForecast(weatherCity.coord.lat, weatherCity.coord.lon)
 					clearPanelForecast()
-					if (!listCities.contains(city))
-						adapterCities.add(city)
+
+					if (city != null) {
+						if (!listCities.contains(city))
+							adapterCities.add(city)
+					} else if (weatherCity.name != null) {
+						if (!listCities.contains(weatherCity.name))
+							adapterCities.add(weatherCity.name)
+
+						selectCity.setText(weatherCity.name, false)
+					}
 				}
 			} catch (cre: ClientRequestException) {
 				val stringBody: String = cre.response.receive()
@@ -221,7 +231,8 @@ class ActivityWeather : AppCompatActivity() {
 
 		panelForecastHourly.addView(button)
 
-		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 25f,
+		val px = TypedValue.applyDimension(
+			TypedValue.COMPLEX_UNIT_SP, 25f,
 			button.context.resources.displayMetrics)
 		button.layoutParams.height = px.toInt()
 		button.setPadding(1)
@@ -245,7 +256,8 @@ class ActivityWeather : AppCompatActivity() {
 		if (hide)
 			frameLayout.visibility = View.GONE
 
-		val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 40f,
+		val px = TypedValue.applyDimension(
+			TypedValue.COMPLEX_UNIT_SP, 40f,
 			frameLayout.context.resources.displayMetrics)
 		frameLayout.layoutParams.height = px.toInt()
 		frameLayout.setPadding(0)
@@ -346,7 +358,7 @@ class ActivityWeather : AppCompatActivity() {
 		val cities = prefs.getStringSet("cities", setOf())!!
 		listCities = cities.toMutableList()
 
-		adapterCities = ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, listCities)
+		adapterCities = ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, listCities)
 		selectCity.setAdapter(adapterCities)
 
 		checkBoxAutoGetWeather.isChecked = prefs.getBoolean("autoGetWeather", false)
@@ -355,6 +367,11 @@ class ActivityWeather : AppCompatActivity() {
 			buttonGetWeatherClick(buttonGetWeather)
 	}
 
+
+	fun buttonDeleteCurCityFromListClick(sender: View?) {
+		adapterCities.remove(selectCity.text.toString())
+		selectCity.setText("")
+	}
 //------------------------------- Downloading images for buttons -------------------------------
 
 	fun downloadImageCached(imageView: ImageView, url: String) {
@@ -417,12 +434,12 @@ class ActivityWeather : AppCompatActivity() {
 		val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
 		if (location != null)
-			queryWeather(null, location.latitude as Float, location.longitude as Float)
+			queryWeather(null, location.latitude.toFloat(), location.longitude.toFloat())
 
 	}
 
 	fun toggleButtonSettingsClick(sender: View?) {
-
+		TransitionManager.beginDelayedTransition(linearLayoutMain)
 		if (toggleButtonSettings.isChecked)
 			layoutSettings.visibility = View.VISIBLE
 		else
