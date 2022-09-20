@@ -343,10 +343,8 @@ class ActivityWeather : AppCompatActivity() {
 	override fun onResume() {
 		super.onResume()
 
-		if (prefs.contains("city")) {
-			val city = prefs.getString("city", "")!!
-			selectCity.setText(city)
-		}
+		val city = prefs.getString("city", "")
+		selectCity.setText(city)
 
 		val timeZone = prefs.getString("timeZone", "Local")!!
 
@@ -356,7 +354,7 @@ class ActivityWeather : AppCompatActivity() {
 			radioTimeZoneSelectedCity.isChecked = true
 
 		val cities = prefs.getStringSet("cities", setOf())!!
-		listCities = cities.toMutableList()
+		listCities = cities.filterNotNull().toMutableList()
 
 		adapterCities = ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, listCities)
 		selectCity.setAdapter(adapterCities)
