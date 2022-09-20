@@ -105,19 +105,7 @@ class ActivityWeather : AppCompatActivity() {
 					queryWeatherForecast(weatherCity.coord.lat, weatherCity.coord.lon)
 					clearPanelForecast()
 
-					if (city != null) {
-						if (!listCities.contains(city)) {
-							// For correct adding new option need first clear input
-							selectCity.setText("", false)
-							adapterCities.add(city)
-							selectCity.setText(city, false)
-						}
-					} else if (weatherCity.name != null) {
-						if (!listCities.contains(weatherCity.name))
-							adapterCities.add(weatherCity.name)
-
-						selectCity.setText(weatherCity.name, false)
-					}
+					updateDropdown(city, weatherCity.name)
 				}
 			} catch (cre: ClientRequestException) {
 				val stringBody: String = cre.response.receive()
@@ -128,6 +116,44 @@ class ActivityWeather : AppCompatActivity() {
 			}
 		}
 	}
+
+
+	private fun updateDropdown(city: String?, cityFromResponse: String?) {
+		if (city != null) {
+			// Correct city spelling in dropdown
+			val correctedCity = if ((cityFromResponse != null) &&
+				(cityFromResponse != city) &&
+				(cityFromResponse.uppercase() == city.uppercase()))
+				cityFromResponse
+			else
+				city
+
+			for (cur in listCities)
+				if ((cur != correctedCity) && (cur.uppercase() == correctedCity.uppercase())) {
+					selectCity.setText("", false)
+					adapterCities.remove(cur)
+					adapterCities.add(correctedCity)
+					selectCity.setText(correctedCity, false)
+					return
+				}
+
+			// Add new city to dropdown
+			if (!listCities.contains(correctedCity)) {
+				// For correct adding new option need first clear input
+				selectCity.setText("", false)
+				adapterCities.add(correctedCity)
+				selectCity.setText(correctedCity, false)
+			}
+
+		// If request was by GPS location, add city name from response
+		} else if (cityFromResponse != null) {
+			if (!listCities.contains(cityFromResponse))
+				adapterCities.add(cityFromResponse)
+
+			selectCity.setText(cityFromResponse, false)
+		}
+	}
+
 
 	var g_weatherCity: ResponseWeatherCity? = null
 
