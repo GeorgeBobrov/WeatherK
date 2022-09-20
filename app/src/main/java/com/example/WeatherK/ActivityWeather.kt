@@ -106,8 +106,12 @@ class ActivityWeather : AppCompatActivity() {
 					clearPanelForecast()
 
 					if (city != null) {
-						if (!listCities.contains(city))
+						if (!listCities.contains(city)) {
+							// For correct adding new option need first clear input
+							selectCity.setText("", false)
 							adapterCities.add(city)
+							selectCity.setText(city, false)
+						}
 					} else if (weatherCity.name != null) {
 						if (!listCities.contains(weatherCity.name))
 							adapterCities.add(weatherCity.name)
@@ -338,7 +342,7 @@ class ActivityWeather : AppCompatActivity() {
 	}
 
 	var listCities = mutableListOf<String>()
-	lateinit var adapterCities: ArrayAdapter<String>
+	lateinit var adapterCities: ArrayAdapterNoFilter
 
 	override fun onResume() {
 		super.onResume()
@@ -356,7 +360,7 @@ class ActivityWeather : AppCompatActivity() {
 		val cities = prefs.getStringSet("cities", setOf())!!
 		listCities = cities.filterNotNull().toMutableList()
 
-		adapterCities = ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, listCities)
+		adapterCities = ArrayAdapterNoFilter(this, R.layout.support_simple_spinner_dropdown_item, listCities)
 		selectCity.setAdapter(adapterCities)
 
 		checkBoxAutoGetWeather.isChecked = prefs.getBoolean("autoGetWeather", false)
