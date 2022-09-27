@@ -72,7 +72,7 @@ class ActivityWeather : AppCompatActivity() {
 	fun buttonGetWeatherClick(sender: View?) {
 		hideKeyboard()
 
-		val city = selectCity.text.toString()
+		val city = selectCity.text.toString().trim()
 		queryWeather(city)
 	}
 
