@@ -19,10 +19,10 @@
             android:id="@+id/textInputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_marginStart="5dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="5dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="8dp"
             android:hint="@string/select_city"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonGetWeather"
@@ -32,17 +32,24 @@
             <AutoCompleteTextView
                 android:id="@+id/selectCity"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/buttonGetWeather"
-            android:layout_width="93dp"
+            android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginTop="5dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="-5dp"
+            android:lines="2"
             android:onClick="buttonGetWeatherClick"
+            android:paddingLeft="0dp"
+            android:paddingTop="0dp"
+            android:paddingRight="0dp"
+            android:paddingBottom="0dp"
             android:text="@string/Get_weather"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -56,26 +63,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ToggleButton
-            android:id="@+id/toggleButtonSettings"
-            android:layout_width="52dp"
-            android:layout_height="51dp"
-            android:layout_weight="0"
-            android:checked="false"
-            android:drawableStart="@drawable/ic_settings_black_30dp"
-            android:onClick="toggleButtonSettingsClick"
-            android:textOff=" "
-            android:textOn=" "
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:padding="5sp"
+            android:padding="10sp"
             android:text="@string/or"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -84,7 +77,7 @@
         <Button
             android:id="@+id/buttonGetLocation"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="0"
             android:onClick="buttonGetLocationClick"
             android:text="@string/Get_weather_here"
@@ -92,6 +85,23 @@
             app:icon="@android:drawable/ic_menu_mylocation"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView4"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ToggleButton
+            android:id="@+id/toggleButtonSettings"
+            android:layout_width="52dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="0"
+            android:checked="false"
+            android:drawableStart="@drawable/ic_settings_black_30dp"
+            android:onClick="toggleButtonSettingsClick"
+            android:textOff=" "
+            android:textOn=" "
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -106,7 +116,7 @@
         <RadioGroup
             android:id="@+id/layoutSettingsTZ"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="37dp"
             android:orientation="horizontal"
             android:visibility="visible">
 
@@ -140,7 +150,8 @@
         <CheckBox
             android:id="@+id/checkBoxAutoGetWeather"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="35dp"
+            android:layout_marginStart="2dp"
             android:text="@string/AutoGetWeather" />
 
         <Button

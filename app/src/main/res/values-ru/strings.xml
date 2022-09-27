@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Weather</string>
     <string name="select_city">Введите или выберите город</string>
-    <string name="Get_weather">Узнать погоду</string>
+    <string name="Get_weather">Узнать\nпогоду</string>
     <string name="Get_weather_here">Узнать погоду здесь</string>
     <string name="or">или:</string>
     <string name="TimeZone">Часовой пояс:</string>
