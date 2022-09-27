@@ -16,7 +16,6 @@ import android.transition.TransitionManager
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -43,7 +42,8 @@ import kotlin.math.roundToInt
 const val PERMISSION_REQUEST_Location = 0
 
 class ActivityWeather : AppCompatActivity() {
-	val baseURLRemote = "http://api.openweathermap.org/data/2.5/"
+	val baseUrlWeatherServer = "https://api.openweathermap.org/data/2.5/"
+	val baseUrlImg = "https://openweathermap.org/img/w/"
 	val APIkey = "534e27824fc3e9e6b42bd9076d595c84"
 	private lateinit var prefs: SharedPreferences
 	lateinit var locationManager: LocationManager
@@ -85,7 +85,7 @@ class ActivityWeather : AppCompatActivity() {
 
 	fun queryWeather(city: String?, lat: Float? = null, lon: Float? = null) = GlobalScope.async() {
 
-		val statement: HttpStatement = KtorClient.get(baseURLRemote + "weather") {
+		val statement: HttpStatement = KtorClient.get(baseUrlWeatherServer + "weather") {
 			if (city != null)
 				parameter("q", city)
 			else {
@@ -183,7 +183,7 @@ class ActivityWeather : AppCompatActivity() {
 
 	fun queryWeatherForecast(lat: Float, lon: Float) = GlobalScope.async() {
 
-		val statement: HttpStatement = KtorClient.get(baseURLRemote + "onecall") {
+		val statement: HttpStatement = KtorClient.get(baseUrlWeatherServer + "onecall") {
 			parameter("lat", lat.toString())
 			parameter("lon", lon.toString())
 			parameter("lang", resources.getString(R.string.current_locale))
@@ -303,7 +303,7 @@ class ActivityWeather : AppCompatActivity() {
 		fragment.textTemp.text = "${normalizeTemp(hourForecast.temp)} °C,"
 		fragment.textWeather.text = weatherDescription
 
-		val imgUrl = "http://openweathermap.org/img/w/${hourForecast.weather[0].icon}.png"
+		val imgUrl = baseUrlImg + hourForecast.weather[0].icon + ".png"
 		downloadImageCached(fragment.image, imgUrl)
 
 		return frameLayout
